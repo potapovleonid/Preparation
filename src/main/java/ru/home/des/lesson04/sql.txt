@@ -1,0 +1,72 @@
+CREATE TABLE public.duration_tbl
+(
+    duration_id SERIAL NOT NULL,
+    duration_fld smallint NOT NULL,
+    PRIMARY KEY (duration_id)
+);
+
+ALTER TABLE public.duration_tbl
+    OWNER to postgres;
+========================================================
+CREATE TABLE public.seans_tbl
+(
+    seans_id BIGSERIAL NOT NULL,
+    title_fld character(255) NOT NULL,
+    data_fld date NOT NULL,
+    time_start_fld time without time zone NOT NULL,
+    duration_id SERIAL NOT NULL,
+    cost_fld smallserial NOT NULL,
+    PRIMARY KEY (seans_id),
+    CONSTRAINT duration_id FOREIGN KEY (duration_id)
+        REFERENCES public.duration_tbl (duration_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+);
+
+ALTER TABLE public.seans_tbl
+    OWNER to postgres;
+========================================================
+CREATE TABLE public.tickets_tbl
+(
+    ticket_id bigint NOT NULL,
+    seans_id BIGSERIAL NOT NULL,
+    PRIMARY KEY (ticket_id),
+    CONSTRAINT seans_id FOREIGN KEY (seans_id)
+        REFERENCES public.seans_tbl (seans_id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
+        NOT VALID
+);
+
+ALTER TABLE public.tickets_tbl
+    OWNER to postgres;
+========================================================
+INSERT INTO public.duration_tbl(
+	duration_fld)
+ 	VALUES (30), (60), (60);
+========================================================
+INSERT INTO public.seans_tbl(
+	title_fld, data_fld, time_start_fld, duration_id, cost_fld)
+	VALUES 
+		('SAO 1', '10.02.2021', '10:00:00', 2, 500), 
+		('SAO 2', '10.02.2021', '10:15:00', 1, 550), 
+		('Avengers', '10.02.2021', '12:00:00', 3, 999),  
+		('Knives Out', '11.02.2021', '10:00:00', 1, 250);
+========================================================
+select s1.title_fld, s1.data_fld, s1.time_start_fld, s2.title_fld, s2.data_fld, s2.time_start_fld  
+	from public.seans_tbl as s1
+		join public.seans_tbl as s2 on s1.title_fld != s2.title_fld
+		join public.duration_tbl as d1 on s1.duration_id = d1.duration_id
+	where s1.data_fld = s2.data_fld
+	and (s1.time_start_fld + (d1.duration_fld * interval '1' minute)) > s2.time_start_fld
+	and s1.time_start_fld < s2.time_start_fld;
+========================================================
+select s1.title_fld, s1.data_fld, s1.time_start_fld, (s1.time_start_fld + d1.duration_fld * interval '1' minute) time_end_fld, 
+		d1.duration_fld, s2.time_start_fld, (s2.time_start_fld - (s1.time_start_fld + (d1.duration_fld * interval '1' minute))) 
+		break_between_film
+	from public.seans_tbl as s1
+		join public.seans_tbl as s2 on s1.title_fld != s2.title_fld
+		join public.duration_tbl as d1 on s1.duration_id = d1.duration_id
+	where s1.data_fld = s2.data_fld
+		and (s1.time_start_fld + d1.duration_fld * interval '1' minute) < s2.time_start_fld;
