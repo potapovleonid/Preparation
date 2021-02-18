@@ -1,0 +1,21 @@
+<hibernate-configuration>
+    <session-factory>
+        <property name="connection.driver_class">org.postgresql.Driver</property>
+        <property name="connection.url">jdbc:postgresql://127.0.0.1:5432/testdb</property>
+        <property name="connection.username">postgres</property>
+        <property name="connection.password">postgres</property>
+
+        <!-- JDBC connection pool (use the build-in) -->
+        <property name="connection.pool_size">1</property>
+
+        <!-- thread is the short name for org.hibernate.context.ThreadLocalSessionContext -->
+        <property name="current_session_context_class">thread</property>
+
+        <!-- Set "true" to show SQL statements -->
+        <property name="hibernate.show_sql">true</property>
+
+        <!-- mapping class using annotation -->
+        <mapping class="ru.home.des.lesson05.CrudOperationUniversal"></mapping>
+    </session-factory>
+
+</hibernate-configuration>
